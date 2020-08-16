@@ -175,3 +175,7 @@ The *xparr_site_groups_test.pl* script calculates on which edges of the tree the
 `summ_site_groups_tests.pl –a parent –x example.xparr site_groups_test.out.list`
 
 In the event that there are several genes whose evolution corresponds to one phylogenetic tree, for example, example.xparr, then it is possible to match the edges, where in each gene there was a change in the relative rates of evolution. The summ_site_groups_tests.pl script determines the probability of a random match. The *site_groups_test.out.list* file should contain a list of file paths with the results of the *xparr_site_groups_test.pl* script for each gene.
+
+## Reproducing publication results
+
+To reproduce publication results for mitochondrian proteins you can use configuration files from the [data](https://github.com/gFedonin/EpiStat/tree/master/data) folder.
