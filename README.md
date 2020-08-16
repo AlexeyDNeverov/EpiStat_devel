@@ -70,6 +70,12 @@ Examples of parameter files that can be used as templates can be found in: /epis
 
 ## Quick start
 
+These instructions are for linux.
+- Put *epistat.7.1* to your home directry and *pdbUtils*, *TreeUtils* and *DnaUtilities* to *epistat_lib* dir in your home dir, than add EPISTAT_HOME and EPISTAT_LIB to your .bash_profile:
+  ```
+  export EPISTAT_HOME=$HOME/epistat.7.1/
+  export EPISTAT_LIB=$HOME/epistat_lib/
+  ```
 - Copy the example files to a separate directory:
 ```
   mkdir example
@@ -81,11 +87,13 @@ Examples of parameter files that can be used as templates can be found in: /epis
   This script estimates 'tau' parameter and prints it to example.tau. Copy the value of "TAU=" from example.tau to the field "TAU=" in example.epistat.prm.
   - `~$HOME/epistat.7.1/run_epistat.pl -x example.xparr -m 3 -p 10000 example.epistat.prm run_epistat.prm`
   - `~$HOME/epistat.7.1/estimate_fdr.pl example.upper.pvalue.sites.fdr.prm > example.upper.pvalue.sites.fdr`
+  - `~$HOME/epistat.7.1/mk_coevolmtx.pl –m Z-score example.mk_coevolmtx.prm`
+  - `~$HOME/epistat.7.1/minvert/cor2pcor.R -f example.block.mtx -l 0.9 -n 0`
   
 
 ## Advanced configaration
 
-### estimate_fdr.pl
+### Estimation of the presence of signal in the data: estimate_fdr.pl
 
 `estimate_fdr.pl example.upper.pvalue.(sites|pairs).fdr.prm> example.upper.pvalue.(sites|pairs).fdr`
 
@@ -99,9 +107,36 @@ MutationNumbersFilter="pairs"
 BGR_SiteMinMutations="2"
 FGR_SiteMinMutations="2"
 ```
-The "sites" filter requires at least BGR_SiteMinMutations substitution and FGR_SiteMinMutations substitution in the first (background) and the second (foreground) sites in the pair. The "pairs" filter is more restrictive, it requires that consecutive pairs of mutations in pairs of sites contain at least BGR_SiteMinMutations and FGR_SiteMinMutations of *different* mutations. By default, you should use the filter "pairs" and 2 mutations in sites, if N/L >= 5, where N is the number of sequences in the alignment, L is the length of the alignment. Disabling the filter for the minimum number of pairs is necessary if the initial alignment contains few sequences (N / L <5), for this you should set:
+The "sites" filter requires at least BGR_SiteMinMutations substitution and FGR_SiteMinMutations substitution in the first (background) and the second (foreground) sites in the pair. The "pairs" filter is more restrictive, it requires that consecutive pairs of mutations in pairs of sites contain at least BGR_SiteMinMutations and FGR_SiteMinMutations of *different* mutations. By default, you should use the filter "pairs" and 2 mutations in sites, if N/L >= 5, where N is the number of sequences in the alignment, L is the length of the alignment. Disabling the filter for the minimum number of pairs is necessary if the initial alignment contains few sequences (N/L < 5), for this you should set:
 ```
 MutationNumbersFilter="sites"
 BGR_SiteMinMutations="1"
 FGR_SiteMinMutations="1"
 ```
+*example.upper.pvalue.(sites|pairs).fdr* contains the table:\
+`pvalue	#obs	#exp	P`\
+Here pvalue is the nominal p-value; #obs is the number of observations in real data corresponding to a given or smaller nominal p-value; #exp is the average number of observations in the null model, in which sites do not interact; P is the proportion of random realizations of the null model, where #obs <= #exp. If P <0.05, then for the corresponding nominal pvalue we have FDR < 1. We can assume that a signal is present in the data if in the range 0 <= pvalue <= 0.05 a significant proportion of pairs have nominal p-values, such that FDR < 1.
+
+### Coevolution matrix creation: mk_coevolmtx.pl
+
+`mk_coevolmtx.pl –m Z-score example.mk_coevolmtx.prm`
+
+In the parameter file *example.mk_coevolmtx.prm*, set the filter to the minimum mutation value in the sites corresponding to the strongest signal in the data (see above). For example:
+```
+MutationNumbersFilter="pairs"
+BGR_SiteMinMutations="2"
+FGR_SiteMinMutations="2"
+```
+or
+```
+MutationNumbersFilter="sites"
+BGR_SiteMinMutations="1"
+FGR_SiteMinMutations="1"
+```
+The resulting covariance matrix will be in files: *example.block.mtx* and *example.mtx*
+
+### Site interaction estimation: cor2pcor.R
+
+`cor2pcor.R -f example.block.mtx -l 0.9 -n 0`
+
+The output file *example.cor2pcor.R.out* will contain the result of the analysis: the values of the ordering statistics *wi_score*, reflecting the strength of the interaction between sites in a pair.
