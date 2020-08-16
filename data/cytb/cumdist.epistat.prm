@@ -1,0 +1,5 @@
+PairsType="intragene"
+StatFunc="identity"
+IgnoreTerminals="0"
+PrintAllPairs="1"
+BranchDistUnits="DEFAULT"

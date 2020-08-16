@@ -1,0 +1,5 @@
+TAU="0.28"
+PairsType="intragene"
+IgnoreTerminals="0"
+PrintAllPairs="1"
+BranchDistUnits="DEFAULT"
