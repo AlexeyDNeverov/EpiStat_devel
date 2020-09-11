@@ -44,6 +44,7 @@ Examples of parameter files that can be used as templates can be found in: /epis
 - Install perl 5 (you can use [perlbrew](https://perlbrew.pl/) if you like)
 - Install [R](https://www.r-project.org/)
 - Install python 2 (typically system python for linux, you can also use [pyenv](https://github.com/pyenv/pyenv) with [miniconda](https://docs.conda.io/en/latest/miniconda.html))
+- Install [GNU Parallel](https://www.gnu.org/software/parallel/)
 - Install *cpanminus* and use it to install a couple of Perl libraries from CPAN:
   - `cpan App::cpanminus`
   - `cpanm Bio::Phylo`
