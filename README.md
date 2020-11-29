@@ -31,7 +31,10 @@ EpiStat is implemented in perl 5, R and python 2. The workflow itself consists o
 - *estimate_fdr.pl* - Estimates FDR values for nominal p-values. This script is not required for obtaining of final result, but it is necessary to evaluate the presence or absence of signal in the data.
 - *mk_coevolmtx.pl* - Forms a covariance matrix of substitutions in pairs of sites
 - *minvert/cor2pcor.R* - Inverts the covariance matrix, normalizes the result.
-- 
+- *graph/mk_graph.pl* - Cerates coevolution graphs in GRAPHML format based on lists of weighted edges.
+- *graph/find_partition.py* - Searches for clusters of graph vertices with a high density of positive connections within and negative connections between clusters.
+- *stat/xparr_site_groups_test.pl* - Calculates on which edges of the tree the relative evolutionary rates have changed in the given site groups.
+- *stat/summ_site_groups_tests.pl* - Determine the coordinated changes in the rates of substitutions in different genes.
 
 For each script, the description of options and values of input parameters passed in files is described in the comments at the beginning of \*.pl files. The end result generated with *minvert/cor2pcor.R* is a matrix containing the *wi_score* statistics that is used to order the pairs. Larger statistic values correspond to pairs of sites with a higher probability of being close on the 3D structure of the protein. When using scripts from the package, the parameter file naming convention is adopted (optional). Let the source file be named example.xparr, then the parameter files are named: *example.<script_name>.prm*. The parameted values may depend on the data being processed.\
 Examples of parameter files that can be used as templates can be found in: /epistat.7.1/prm_templates/intragene/nophen/.
@@ -41,6 +44,7 @@ Examples of parameter files that can be used as templates can be found in: /epis
 - Install perl 5 (you can use [perlbrew](https://perlbrew.pl/) if you like)
 - Install [R](https://www.r-project.org/)
 - Install python 2 (typically system python for linux, you can also use [pyenv](https://github.com/pyenv/pyenv) with [miniconda](https://docs.conda.io/en/latest/miniconda.html))
+- Install [GNU Parallel](https://www.gnu.org/software/parallel/)
 - Install *cpanminus* and use it to install a couple of Perl libraries from CPAN:
   - `cpan App::cpanminus`
   - `cpanm Bio::Phylo`
@@ -160,7 +164,7 @@ As a result, two files in GRAPHML format will be generated containing graph slic
 
 ### Coevolving site groups detection: find_partition.py 
 
-`find_partition.py –n example.negative_edges.graphml  –p example.positive_edges.graphml –r 10000`
+`find_partition.py –n example.negative_edges.graphml –p example.positive_edges.graphml –r 10000`
 
 The find_partition.py script implements the search for clusters of graph vertices with a high density of positive connections within and negative connections between clusters.
 
@@ -174,4 +178,8 @@ The *xparr_site_groups_test.pl* script calculates on which edges of the tree the
 
 `summ_site_groups_tests.pl –a parent –x example.xparr site_groups_test.out.list`
 
-In the event that there are several genes whose evolution corresponds to one phylogenetic tree, for example, example.xparr, then it is possible to match the edges, where in each gene there was a change in the relative rates of evolution. The summ_site_groups_tests.pl script determines the probability of a random match. The *site_groups_test.out.list* file should contain a list of file paths with the results of the *xparr_site_groups_test.pl* script for each gene.
+In case when there are several genes whose evolution corresponds to one phylogenetic tree, for example, example.xparr, it is possible to match the edges, in which in each gene there was a change in the relative rates of evolution. The summ_site_groups_tests.pl script determines the probability of a random match. The *site_groups_test.out.list* file should contain a list of file paths with the results of the *xparr_site_groups_test.pl* script for each gene.
+
+## Reproducing publication results
+
+To reproduce publication results for mitochondrian proteins you can use configuration files from the [data](https://github.com/gFedonin/EpiStat/tree/master/data) folder.
