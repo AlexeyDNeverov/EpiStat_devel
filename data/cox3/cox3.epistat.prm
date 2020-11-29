@@ -1,5 +1,6 @@
 TAU="0.25"
 PairsType="intragene"
+StatType="independent_pairs"
 IgnoreTerminals="0"
 PrintAllPairs="1"
 BranchDistUnits="DEFAULT"
