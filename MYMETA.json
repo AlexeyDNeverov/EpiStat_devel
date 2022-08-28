@@ -1,0 +1,198 @@
+{
+   "abstract" : "Epistat - the set of utilities for the searching for associations on a phylogenetic tree",
+   "author" : [
+      "Alexey D. Neverov <neva_2000(at)mail.ru>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Module::Build version 0.4231",
+   "license" : [
+      "gpl_3"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Epistat",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Pod::Select" : "0",
+            "Pod::Text" : "0",
+            "Test::More" : "0.47"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Pod::Select" : "0",
+            "Pod::Text" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Bio::Phylo" : "0",
+            "Color::Rgb" : "0",
+            "File::Basename" : "0",
+            "File::Path" : "0",
+            "Getopt::Std" : "0",
+            "List::BinarySearch" : "0",
+            "Math::Gradient" : "0",
+            "Time::Progress" : "0"
+         }
+      }
+   },
+   "provides" : {
+      "AssociationStatistics::BaseAssociationMeasure" : {
+         "file" : "lib/AssociationStatistics/BaseAssociationMeasure.pm"
+      },
+      "AssociationStatistics::BasicIndexFilter" : {
+         "file" : "lib/AssociationStatistics/BasicIndexFilter.pm"
+      },
+      "AssociationStatistics::CorrelationLike" : {
+         "file" : "lib/AssociationStatistics/CorrelationLike.pm"
+      },
+      "AssociationStatistics::CovarianceLike" : {
+         "file" : "lib/AssociationStatistics/CovarianceLike.pm"
+      },
+      "AssociationStatistics::NonNegativeValueFilter" : {
+         "file" : "lib/AssociationStatistics/NonNegativeValueFilter.pm"
+      },
+      "AssociationStatistics::NormZScore" : {
+         "file" : "lib/AssociationStatistics/NormZScore.pm"
+      },
+      "AssociationStatistics::PairMutationNumberFilter" : {
+         "file" : "lib/AssociationStatistics/PairMutationNumberFilter.pm"
+      },
+      "AssociationStatistics::PvalueFilter" : {
+         "file" : "lib/AssociationStatistics/PvalueFilter.pm"
+      },
+      "AssociationStatistics::SelectedSitesFilter" : {
+         "file" : "lib/AssociationStatistics/SelectedSitesFilter.pm"
+      },
+      "AssociationStatistics::SiteMutationNumberFilter" : {
+         "file" : "lib/AssociationStatistics/SiteMutationNumberFilter.pm"
+      },
+      "AssociationStatistics::SymBaseAssociationMeasure" : {
+         "file" : "lib/AssociationStatistics/SymBaseAssociationMeasure.pm"
+      },
+      "AssociationStatistics::SymCorrelationLike" : {
+         "file" : "lib/AssociationStatistics/SymCorrelationLike.pm"
+      },
+      "AssociationStatistics::SymCovarianceLike" : {
+         "file" : "lib/AssociationStatistics/SymCovarianceLike.pm"
+      },
+      "AssociationStatistics::SymIndexFilter" : {
+         "file" : "lib/AssociationStatistics/SymIndexFilter.pm"
+      },
+      "AssociationStatistics::SymNonNegativeValueFilter" : {
+         "file" : "lib/AssociationStatistics/SymNonNegativeValueFilter.pm"
+      },
+      "AssociationStatistics::SymNormZScore" : {
+         "file" : "lib/AssociationStatistics/SymNormZScore.pm"
+      },
+      "AssociationStatistics::SymZScore" : {
+         "file" : "lib/AssociationStatistics/SymZScore.pm"
+      },
+      "AssociationStatistics::ZScore" : {
+         "file" : "lib/AssociationStatistics/ZScore.pm"
+      },
+      "AssociationStatistics::basicAssociationFilter" : {
+         "file" : "lib/AssociationStatistics/basicAssociationFilter.pm"
+      },
+      "DnaUtilities::CDS::annotation" : {
+         "file" : "lib/DnaUtilities/CDS/annotation.pm",
+         "version" : "1"
+      },
+      "DnaUtilities::FASTASimple" : {
+         "file" : "lib/DnaUtilities/FASTASimple.pm",
+         "version" : "1"
+      },
+      "DnaUtilities::GrouppedMSA" : {
+         "file" : "lib/DnaUtilities/grouppedMSA.pm"
+      },
+      "DnaUtilities::compare" : {
+         "file" : "lib/DnaUtilities/compare.pm",
+         "version" : "1"
+      },
+      "DnaUtilities::iupac" : {
+         "file" : "lib/DnaUtilities/iupac.pm",
+         "version" : "1"
+      },
+      "Epistat" : {
+         "file" : "lib/Epistat.pm",
+         "version" : "0.1"
+      },
+      "EpistatAnalysis::PhyloDistances" : {
+         "file" : "lib/EpistatAnalysis/PhyloDistances.pm",
+         "version" : "1"
+      },
+      "EpistatAnalysis::PhyloDrawSites" : {
+         "file" : "lib/EpistatAnalysis/PhyloDrawSites.pm",
+         "version" : "1"
+      },
+      "EpistatNullModel::General" : {
+         "file" : "lib/EpistatNullModel/General.pm"
+      },
+      "EpistatNullModel::Symmetric" : {
+         "file" : "lib/EpistatNullModel/Symmetric.pm"
+      },
+      "IO::EmpiricalMutationModel" : {
+         "file" : "lib/IO/EmpiricalMutationModel.pm",
+         "version" : "1"
+      },
+      "IO::SitePairIdxData" : {
+         "file" : "lib/IO/SitePairIdxData.pm",
+         "version" : "1"
+      },
+      "IO::XPARR" : {
+         "file" : "lib/IO/XPARR.pm",
+         "version" : "1"
+      },
+      "IndexedFakeSamplesHeap" : {
+         "file" : "lib/IndexedFakeSamplesHeap.pm"
+      },
+      "Pairs::AlleleBranchPairs" : {
+         "file" : "lib/Pairs/AlleleBranchPairs.pm"
+      },
+      "Pairs::AlleleConsecutivePairs" : {
+         "file" : "lib/Pairs/AlleleConsecutivePairs.pm"
+      },
+      "Pairs::BranchPairs" : {
+         "file" : "lib/Pairs/BranchPairs.pm"
+      },
+      "Pairs::ConsecutivePairs" : {
+         "file" : "lib/Pairs/ConsecutivePairs.pm"
+      },
+      "ParallelSubstWeights" : {
+         "file" : "lib/ParallelSubstWeights.pm"
+      },
+      "Phenotype::AggregateStatistics" : {
+         "file" : "lib/Phenotype/AggregateStatistics.pm",
+         "version" : "1"
+      },
+      "SiteModel::AlleleMutRates" : {
+         "file" : "lib/SiteModel/AlleleMutRates.pm"
+      },
+      "SiteModel::EmpiricalProfile" : {
+         "file" : "lib/SiteModel/EmpiricalProfile.pm"
+      },
+      "SiteModel::ProteinMixtureModelProfile" : {
+         "file" : "lib/SiteModel/ProteinMixtureModelProfile.pm"
+      },
+      "SitePairInfo" : {
+         "file" : "lib/SitePairInfo.pm"
+      },
+      "SitePairMatrix" : {
+         "file" : "lib/SitePairMatrix.pm"
+      },
+      "SitePairUtils" : {
+         "file" : "lib/SitePairUtils.pm",
+         "version" : "1"
+      },
+      "SubstPairInfo" : {
+         "file" : "lib/SubstPairInfo.pm"
+      }
+   },
+   "release_status" : "stable",
+   "version" : "0.1",
+   "x_serialization_backend" : "JSON::PP version 2.27400_02"
+}

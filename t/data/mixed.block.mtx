@@ -1,0 +1,7 @@
+Block Matrix: mixed[1,1]
+OutDir=""
+SubMtxExt=".mtx"
+Genes: (mixed[100])
+Submatrices:
+operator	name	nrow	ncol
+	mixed	100	100

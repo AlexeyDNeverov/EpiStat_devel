@@ -1,0 +1,6 @@
+TAU="0.20"
+PairsType="intragene"
+StatType="all_allele_pairs"
+IgnoreTerminals="0"
+BranchDistUnits="DEFAULT"
+Alphabet="ARNDCQEGHILKMFPSTWYV"

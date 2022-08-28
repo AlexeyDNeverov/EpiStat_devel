@@ -1,5 +1,0 @@
-TAU="<ufloat>"
-PairsType="intragene"
-IgnoreTerminals="0"
-PrintAllPairs="1"
-BranchDistUnits="DEFAULT"

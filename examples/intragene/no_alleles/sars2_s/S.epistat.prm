@@ -1,0 +1,5 @@
+TAU="0.0003"
+StatType="independent_pairs"
+PairsType="intragene"
+IgnoreTerminals="1"
+BranchDistUnits="DEFAULT"

@@ -1,0 +1,17 @@
+script/stat/aggregate_statistics.pl
+script/stat/draw_site_pairs_on_tree.pl
+script/stat/figtree.colors
+script/stat/fishers_exact_test.R
+script/stat/mk_fake_wi_scores.pl
+script/stat/mk_table.sh
+script/stat/multinomial_test.R
+script/stat/multisetIntersect.R
+script/stat/site_set2site_pairs_test.pl
+script/stat/summ_site_groups_tests.pl
+script/stat/summ_site_subset_enrich_tests.pl
+script/stat/test.tab
+script/stat/test_fe.tab
+script/stat/wilcox_test.R
+script/stat/xparr_enrich_test.pl
+script/stat/xparr_site_groups_test.pl
+script/stat/xparr_wilcox_test.pl

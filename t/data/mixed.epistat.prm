@@ -1,0 +1,6 @@
+TAU="0.804"
+StatType="indep_allele_pairs_A1"
+PairsType="intragene"
+IgnoreTerminals="1"
+BranchDistUnits="DEFAULT"
+Alphabet="KP"
