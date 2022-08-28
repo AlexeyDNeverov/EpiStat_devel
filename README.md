@@ -1,6 +1,15 @@
 # EpiStat
 
-EpiStat is a pipeline for searching epistatic interactions on phylogenetic trees. The input data is a phylogenetic tree with a list of substitutions on branches in XPARR format:
+EpiStat is a pipeline for searching epistatic interactions on phylogenetic trees. 
+
+The method is based on the following publications:
+
+1. Kryazhimsky S., et. al. Prevalence of Epistasis in the Evolution of Influenza A Surface Proteins. 2011 PLoS Genetics 7(2):e1001301
+2. Neverov A.D., et al. Coordinated Evolution of Influenza A Surface Proteins. 2015 PLoS Genetics 11(8):e1005404
+3. Neverov A.D., et al. Episodic evolution of coadapted sets of amino acid sites in mitochondrial proteins. 2021 PLoS Genetics 17(1):e1008711.
+
+
+The input data is a phylogenetic tree with a list of substitutions on branches in XPARR format:
 
 `Header`\
 `RootID`\
