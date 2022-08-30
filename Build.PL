@@ -4,6 +4,8 @@ use Module::Build;
  
 use 5.008;
 
+system("chmod -R u+x script");
+
 my %stat_files;
 open INPF, "<script_stat_list.txt" or die "\nUnable to open input file script_stat_list.txt!";
 while(<INPF>){
