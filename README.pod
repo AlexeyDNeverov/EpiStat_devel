@@ -1,3 +1,5 @@
+=encoding utf8
+
 =head1 TERMS
 
 Event - the change of character states on a branch of phylogenetic tree, e.g. mutation in a genome site or the change of phenotypic states
