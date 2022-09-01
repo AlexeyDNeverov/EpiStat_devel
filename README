@@ -177,10 +177,3 @@ QUICK_START
      # Path="/where/to/installed/epistat/epistat_examples/intragene/alleles/sars2_s"
             $EPISTAT_HOME/mk_summary.pl -u -a S.lp0052.FDR10.mk_summary.cfg -s 1 S.all.mtx>S.zscores.lp0052.FDR10.tab
 
-POD ERRORS
-    Hey! The above document had some coding errors, which are explained
-    below:
-
-    Around line 155:
-        Non-ASCII character seen before =encoding in '–m'. Assuming UTF-8
-

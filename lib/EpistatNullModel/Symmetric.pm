@@ -126,6 +126,7 @@ sub _init{
 		for(my $i=0;$i<@stat_inds;$i++){
 			my $j=$stat_inds[$i];
 			my $obs_stat=$stat_buff[$i];
+			#convertion of coordinates in the full matrix array into coordinates of upper-triangle dioganal matrix array
 			my $r=int($j/($site_num-1));
 			unless($r==$r_ind){
 				$r_ind=$r;
@@ -191,7 +192,7 @@ sub _init{
 					$lower_count[$j]++;
 				}
 				$summ[$j]+=$stat_buff[$k];
-				my ($bgr_idx,$fgr_idx)=$line2site_indices[$j];
+				my ($bgr_idx,$fgr_idx)=@{$line2site_indices[$j]};
 				$site_stat[$bgr_idx]+=$stat_buff[$k];
 				$site_stat[$fgr_idx]+=$stat_buff[$k];
 			}
@@ -266,7 +267,7 @@ sub _init{
 					$from=$j+1;
 					$delta=($stat_buff[$k]-$summ[$j]/$nperm);
 					$summSQ[$j]+=$delta**2;
-					my ($bgr_idx,$fgr_idx)=$line2site_indices[$j];
+					my ($bgr_idx,$fgr_idx)=@{$line2site_indices[$j]};
 					$site_stat[$bgr_idx]+=$stat_buff[$k];
 					$site_stat[$fgr_idx]+=$stat_buff[$k];
 				}

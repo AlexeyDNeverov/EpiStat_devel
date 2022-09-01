@@ -175,7 +175,7 @@ sub _init{
 					$summ[$j]+=$stat_buff[$j];
 				}
 				if(defined($self->{SITE_PAIR_MTX})){
-					my ($bgr_idx,$fgr_idx)=$line2site_indices[$j];
+					my ($bgr_idx,$fgr_idx)=@{$line2site_indices[$j]};
 					$bgr_site_stat[$bgr_idx]+=$stat_buff[$j];
 					$fgr_site_stat[$fgr_idx]+=$stat_buff[$j];
 					if($f_square_mtx){
@@ -255,7 +255,7 @@ sub _init{
 					my $delta=($stat_buff[$j]-$summ[$j]/$nperm);
 					$summSQ[$j]+=$delta**2;
 					if(defined($self->{SITE_PAIR_MTX})){
-						my ($bgr_idx,$fgr_idx)=$line2site_indices[$j];
+						my ($bgr_idx,$fgr_idx)=@{$line2site_indices[$j]};
 						$bgr_site_stat[$bgr_idx]+=$stat_buff[$j];
 						$fgr_site_stat[$fgr_idx]+=$stat_buff[$j];
 						if($f_square_mtx){
