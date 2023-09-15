@@ -99,7 +99,8 @@ my $builder = $class->new(
         'Math::Gradient' => 0,
         'File::Basename'      => 0,
         'File::Path'          => 0,
-		'Getopt::Std'          => 0
+		'Getopt::Std'          => 0,
+		'Statistics::Multtest' => 0
     },
 	stat_files => \%stat_files,
 	graph_files => \%graph_files,

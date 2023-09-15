@@ -36,6 +36,7 @@
             "Getopt::Std" : "0",
             "List::BinarySearch" : "0",
             "Math::Gradient" : "0",
+            "Statistics::Multtest" : "0",
             "Time::Progress" : "0"
          }
       }
@@ -119,7 +120,7 @@
       },
       "Epistat" : {
          "file" : "lib/Epistat.pm",
-         "version" : "0.1"
+         "version" : "v0.10.1"
       },
       "EpistatAnalysis::PhyloDistances" : {
          "file" : "lib/EpistatAnalysis/PhyloDistances.pm",
@@ -193,6 +194,6 @@
       }
    },
    "release_status" : "stable",
-   "version" : "0.1",
+   "version" : "v0.10.1",
    "x_serialization_backend" : "JSON::PP version 2.27400_02"
 }

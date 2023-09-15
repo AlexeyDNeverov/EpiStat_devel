@@ -5,7 +5,7 @@
 #	-n <neg_edge_list> - A negative graph slice edge list
 #	[-u] - Print indirected graph
 #	-o <ouput_fn_prefix> - A prefix string for two output files (negative and positive slices)
-#	-f <"Pajek"|"GraphML"|"Simap"> - An output graph format
+#	-f <"Pajek"|"GraphML"|"Simap|"Leiden"> - An output graph format
 
 use strict;
 use Getopt::Std;
@@ -46,6 +46,8 @@ if($args{f}){
 		$f_out_graph_format="graphml";
 	}elsif($args{f}=~m/simap/i){
 		$f_out_graph_format="simap";
+	}elsif($args{f}=~m/leiden/i){
+		$f_out_graph_format="leiden";
 	}else{
 		die "\nUnknown output graph format: ".$args{f};
 	}
@@ -141,6 +143,34 @@ sub print_graphML{
 	print {$fh} "\n</graphml>";
 }
 
+sub print_Leiden{
+	my ($fh,$rh_vertices,$rh_edges)=@_;
+	my %vname2idx;
+	my @vlist;
+	my $i=0;
+	foreach my $vname(sort {$a<=>$b} keys %{$rh_vertices}){
+		$vname2idx{$vname}=$i++;
+		push @vlist,$vname;
+	}
+	foreach my $str(keys %{$rh_edges}){
+		my @line=split ',', $str;
+		my ($site1,$site2)=($line[0],$line[1]);
+		if(!$f_directed){
+			if($site1>$site2){
+				$site1=$site2;
+				$site2=$line[0];
+			}
+		}else{
+			die "\nNo support for oriented graphs for networkanalysis-1.1.0!";
+		}
+		$site1=$vname2idx{$site1};
+		$site2=$vname2idx{$site2};
+		my $w=$rh_edges->{$str};
+		print {$fh} "$site1\t$site2\t$w\n";
+	}
+	return @vlist;
+}
+
 sub print_pajek{
 	my $fh=shift;
 	my $rh_vertices=shift;
@@ -234,6 +264,17 @@ if($f_out_graph_format eq "graphml"){
 	$ofname=$out_graph_fname.".all_edges.simap";
 	open OPF, ">$ofname" or die "\nUnable to open output file: $ofname!";
 	print_simap(*OPF,\%vertices,\%pos_edge_weights,\%neg_edge_weights);
+	close OPF;
+}elsif($f_out_graph_format eq "leiden"){
+	my $ofname=$out_graph_fname.".positive_edges.leiden";
+	open OPF, ">$ofname" or die "\nUnable to open output file: $ofname!";
+	my @vlist=print_Leiden(*OPF,\%vertices,\%pos_edge_weights);
+	close OPF;
+	$ofname=$out_graph_fname.".leiden.idx2vertex_name";
+	open OPF, ">$ofname" or die "\nUnable to open output file: $ofname!";
+	foreach my $str(@vlist){
+		print OPF "$str\n";
+	}
 	close OPF;
 }
 

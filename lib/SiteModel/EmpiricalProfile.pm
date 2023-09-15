@@ -109,7 +109,7 @@ foreach my $site(keys %{$rh_site2idx}){
 		}
 		unless(scalar(keys %alleles)==1){
 			my $n=$alleles{$anc_idx};
-			print STDERR "\nWARNING: In the site $site the ambiguous ancestral alleles acconted";
+			print STDERR "\nWARNING: In the site $site the ambiguous ancestral alleles accounted";
 			#print STDERR ":\n\tallele_idx\tcount";
 			foreach my $aidx(sort {$a<=>$b} keys %alleles){
 				if($n<$alleles{$aidx}){

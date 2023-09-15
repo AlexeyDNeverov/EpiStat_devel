@@ -672,7 +672,11 @@ if($f_analysis{figtree}){
 			$key->bg_site($in_site_pairs[$i]->[0]);
 			$key->tg_site($in_site_pairs[$i]->[1]);
 			my $j=binsearch {$a->bg_site<=>$b->bg_site||$a->tg_site<=>$b->tg_site} $key, @site_pair_info;
-			push @fig_site_pairs, $site_pair_info[$j] if(defined $j);
+			if(defined $j){
+				push @fig_site_pairs, $site_pair_info[$j];
+			}else{
+				push @fig_site_pairs, $key;
+			}
 		}else{
 			push @site_pos,$in_site_pairs[$i];
 		}

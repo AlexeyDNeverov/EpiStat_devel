@@ -1,5 +1,5 @@
-script/graph/find_partition.py
+script/graph/leiden_find_partition.py
+script/graph/louvain_find_partition.py
 script/graph/join_edge_lists.pl
-script/graph/louvain_modularity.py
 script/graph/mk_graph.pl
-script/graph/test_louvain.py
+script/graph/restore_vnames_in_leiden.pl

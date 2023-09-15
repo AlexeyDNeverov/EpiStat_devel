@@ -64,4 +64,4 @@ if options.neg:
 	quality=quality-part_neg.quality()
 membership=part_pos.membership
 print("Q=",quality,"Significance=",louvain.SignificanceVertexPartition.FromPartition(part_pos).quality())
-print tabulate(zip(G_pos.vs["id"],[x+1 for x in membership]),headers=['site','group'],tablefmt='plain')
+print(tabulate(zip(G_pos.vs["id"],[x+1 for x in membership]),headers=['site','group'],tablefmt='plain'))

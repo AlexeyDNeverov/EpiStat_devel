@@ -1,7 +1,9 @@
 script/stat/aggregate_statistics.pl
+script/stat/cor_test.R
 script/stat/draw_site_pairs_on_tree.pl
 script/stat/figtree.colors
 script/stat/fishers_exact_test.R
+script/stat/mk_BH_fdr_correction.pl
 script/stat/mk_fake_wi_scores.pl
 script/stat/mk_table.sh
 script/stat/multinomial_test.R

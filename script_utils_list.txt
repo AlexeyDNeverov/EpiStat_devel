@@ -2,4 +2,5 @@ script/utils/add_fdr4pvalues.pl
 script/utils/check_xparr.pl
 script/utils/join_site_pair_tables.pl
 script/utils/mk_xparr.pl
+script/utils/two_vec_min.pl
 script/utils/xparr_prune_tree.pl

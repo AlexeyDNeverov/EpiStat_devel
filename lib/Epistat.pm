@@ -1,7 +1,7 @@
 package Epistat;
 #Epistat - the set of utilities for searching of associations on a phylogenetic tree
 #2022 - Alexey D. Neverov neva_2000 (at) mail.ru
-our $VERSION=0.10;
+our $VERSION=0.10.1;
 =head1 NAME
 
 epistat - the set of utilities for the searching for associations on a phylogenetic tree
@@ -22,6 +22,7 @@ The method is based on the following publications:
     1. Kryazhimsky S., et. al. Prevalence of Epistasis in the Evolution of Influenza A Surface Proteins. 2011 PLoS Genetics 7(2):e1001301
     2. Neverov A.D., et al. Coordinated Evolution of Influenza A Surface Proteins. 2015 PLoS Genetics 11(8):e1005404
     3. Neverov A.D., et al. Episodic evolution of coadapted sets of amino acid sites in mitochondrial proteins. 2021 PLoS Genetics 17(1):e1008711.
+    4. Neverov A.D., et al. Coordinated evolution at amino acid sites of SARS-CoV-2 spike. Elife. 2023 Feb 8;12:e82516. doi: 10.7554/eLife.82516.
 
 Pipeline scripts:
 
@@ -146,7 +147,7 @@ These instructions are for linux.
 
     chmod -R 775 /where/to/installed/epistat/epistat_examples
     cd /where/to/installed/epistat/epistat_examples
- #Chouse a subfoulder with an example, e.g. 
+ #example 1: The search for intragenic concordant and discordant evolution
     cd intragene/alleles/sars2_s
 
  Run these commands from the shell:
@@ -163,7 +164,7 @@ These instructions are for linux.
         $EPISTAT_HOME/mk_coevolmtx.pl –m Z-score S.mk_coevolmtx.prm
  #It calculates the pseudocorrelations for site pairs. Does not ignore the negative values (NonNegativeElementFilter="0" in the S.all.mk_coevolmtx.prm).
         $EPISTAT_HOME/mk_coevolmtx.pl –m Z-score S.all.mk_coevolmtx.prm
- #it calculates the partial correlations for the matrix of positive pseudocorrelation statistics.
+ #It calculates the partial correlations for the matrix of positive pseudocorrelation statistics.
         $EPISTAT_HOME/minvert/cor2pcor.R -f S.block.mtx -l 0.9 -n 0 -s .cor2pcor.n0.l90.R.out
  #It builds the table of concordantly evolving pairs of sites having upper p-values<4.4e-4
  #To start, you need to modify the field "Path=" in the file S.up00044.FDR10.mk_summary.cfg setting up to the actual path to the example folder, e.g. 
@@ -173,7 +174,31 @@ These instructions are for linux.
  #To start, you need to modify the field "Path=" in the file S.lp0052.FDR10.mk_summary.cfg setting up to the actual path to the example folder, e.g. 
  # Path="/where/to/installed/epistat/epistat_examples/intragene/alleles/sars2_s"
         $EPISTAT_HOME/mk_summary.pl -u -a S.lp0052.FDR10.mk_summary.cfg -s 1 S.all.mtx>S.zscores.lp0052.FDR10.tab
-
-=cut
+ #
+ #example 2: The search for associations of mutations with the changes of susceptible/resistant phenotypic states on the tree branches
+    cd /where/to/installed/epistat/epistat_examples/intergene/mtb_gwas/Amikacin
+ #Copy the value of "TAU=" from Amikacin.tau to the field "TAU=" in Amikacin.epistat.prm
+    $EPISTAT_HOME/estimate_tau.pl -b 0.95 Amikacin.xparr > Amikacin.tau
+    $EPISTAT_HOME/run_epistat.pl -x Amikacin.xparr -m 2 -p 10000 Amikacin.epistat.prm run_epistat.prm
+ #Estimate FDRs for upper and lower p-values at once
+    parallel $EPISTAT_HOME/estimate_fdr.pl "Amikacin.{}.pvalue.fdr.prm>Amikacin.{}.pvalue.fdr" ::: upper lower
+ #
+ #example 3: The search for concordant evolution of sites with control for their associations with phenotypes for 9 anti-tuberculosis drugs
+ #  For multiple phenotype analysis the additional file with p-values of associations of sites and phenotypes is required - *.site2pheno
+ #  Note: this analysis in longer than the analysis without control of phenotypes by the factor of <the_number_of_phenotypes> 
+    cd /where/to/installed/epistat/epistat_examples/intragene/alleles/mtb/phen
+    $EPISTAT_HOME/estimate_tau.pl -b 0.95 9drugs.xparr > 9drugs.tau
+    $EPISTAT_HOME/run_epistat.pl -x 9drugs.xparr -m 2 -p 10000 epistat.phen.prm run_epistat.prm
+ #Estimate FDRs for upper and lower p-values at once
+    cat estimate_fdr.txt|parallel $EPISTAT_HOME/estimate_fdr.pl "{}.prm>{}"
+    $EPISTAT_HOME/mk_coevolmtx.pl –m Z-score 9drugs.mk_coevolmtx.prm
+    $EPISTAT_HOME/mk_coevolmtx.pl –m Z-score 9drugs.all.mk_coevolmtx.prm
+    $EPISTAT_HOME/minvert/cor2pcor.R -f 9drugs.block.mtx -l 0.9 -n 0 -s .cor2pcor.n0.l90.R.out
+ #Before the start modify files
+ # 9drugs.pairs2.upper.FDR5.mk_summary.cfg and
+ # 9drugs.pairs2.lower.FDR5.mk_summary.cfg
+ # setting up the thresholds corresponding to the 5% FDR for the upper pvalue (in the first file) an the lower p-value (in the second file)
+    $EPISTAT_HOME/mk_summary.pl -u -a 9drugs.pairs2.upper.FDR5.mk_summary.cfg 9drugs.cor2pcor.n0.l90.R.out>9drugs.cor2pcor.n0.l90.FDR5.tab
+	$EPISTAT_HOME/mk_summary.pl -u -a 9drugs.pairs2.lower.FDR5.mk_summary.cfg -s 1 9drugs.all.mtx>9drugs.z-score.FDR5.tab
 
 1;
