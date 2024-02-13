@@ -216,16 +216,17 @@ sub get_sites{
 	if((!exists($flags{-nofilters}))&&(@{$self->{FILTERS}}>0)){
 		#remove sites with zero margins
 		my $f_intragene=$self->{F_INTRAGENE};
-		my @bgr_margs;
-		my @fgr_margs;
 		$n=@{$self->{BGR_SITES}};
 		$m=@{$self->{FGR_SITES}};
+		my @bgr_margs=(0) x $n;
+		my @fgr_margs=(0) x $m;
 		my @stat=$self->get_statistics;
 		for(my $i=0;$i<$n;$i++){
 			my $bgr_site=$self->{BGR_SITES}->[$i];
 			for(my $j=0;$j<$m;$j++){
 				my $fgr_site=$self->{FGR_SITES}->[$j];
 				my $k=$self->site_idx_pair2line($i,$j);
+				next unless defined $k;
 				$bgr_margs[$i]+=$stat[$k];
 				$fgr_margs[$j]+=$stat[$k];
 			}
