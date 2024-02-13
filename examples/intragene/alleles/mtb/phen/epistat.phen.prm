@@ -1,0 +1,7 @@
+TAU="0.00016"
+PairsType="intragene"
+StatType="indep_allele_pairs_A1"
+IgnoreTerminals="0"
+BranchDistUnits="DEFAULT"
+Alphabet="ARNDCQEGHILKMFPSTWYV"
+Phenotypes="1"
