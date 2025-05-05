@@ -48,7 +48,7 @@
 #			Default="SYN"
 #		[BranchConfidences="<FN>"] - A file containing confidences for tree branches
 #		[BranchConfidenceThreshold="<ufloat>"] - A threshold to accept of a branch support
-#		[Phenotypes="1|0"] - Use|Ignore phenotypes assigned to the tree branches
+#		[Phenotypes="0|1|2"] - 0- Ignore phenotypes assigned to the tree branches; 1- Use phenotypes; 2- Use phenotype pairs
 
 use strict;
 #server inst
@@ -105,6 +105,7 @@ my $dist_fn=".analysis.dist";
 my $input_site_pair_fn;
 my $npheno;
 my @pheno_labels;
+my $f_phenotype_pairs=0;
 my $alphabet_str;
 my $ra_alphabet;
 my $rh_allele2idx;
@@ -234,10 +235,11 @@ while(<INFILE>){
 		}elsif($key eq "BranchConfidenceThreshold"){
 			$branch_conf_threshold=$value;
 		}elsif($key eq "Phenotypes"){
-			if($value==1){
+			if($value>0&&$value<=2){
 				$npheno=0;
+				$f_phenotype_pairs=1 if $value==2;
 			}else{
-				die "\nUnpropper value for the 'Phenotype' parameter! Valid values: 0 or 1" unless $value==0;
+				die "\nUnpropper value for the 'Phenotype' parameter! Valid values: 0 - 2" unless $value==0;
 			}
 		}else{
 			die "\nUnknown parameter: $key in the input file $ARGV[0]!";
@@ -614,6 +616,56 @@ sub mk_phenotype_subst_map{
 		}
 	}
 }
+sub _phen_pair2idx{
+	my ($i,$j,$npheno)=@_;
+	#return undef unless($i<$npheno&&$j<$npheno);
+	#return undef if $i==$j;
+	($j,$i)=($i,$j) if $j<$i;
+	return ($i*$npheno+$j)-($i+2)*($i+1)/2;
+}
+
+sub _idx2phen_pair{
+	my ($idx,$npheno)=@_;
+	#return undef unless $idx<$npheno*($npheno-1)/2;
+	my $i=int($idx/($npheno-1));
+	my $j=$idx+($i+2)*($i+1)/2-$i*$npheno;
+	return ($i,$j);
+}
+
+sub mk_phenotype_pairs_subst_map{
+	my ($rh_phenotypes,$nphen,$rh_subst_map,$rao_pheno_subst_map,$rao_pheno_site_sets)=@_;
+	@{$rao_pheno_subst_map}=();
+	@{$rao_pheno_site_sets}=();
+	my @tmp_pheno_site_set;
+	my $n=$nphen*($nphen-1)/2;
+	for(my $i=0;$i<$n;$i++){
+		push @{$rao_pheno_subst_map},[({},{},{},{})];
+		push @tmp_pheno_site_set,[({},{},{},{})];
+		push @{$rao_pheno_site_sets},[([],[],[],[])];
+	}
+	foreach my $brname(keys %{$rh_subst_map}){
+		for(my $i=0;$i<$nphen;$i++){
+			my $t1=$rh_phenotypes->{$brname}->[$i];
+			for(my $j=$i+1;$j<$nphen;$j++){
+				my $t2=$rh_phenotypes->{$brname}->[$j];
+				my $idx=_phen_pair2idx($i,$j,$nphen);
+				my $ph=$t1*2+$t2;
+				$rao_pheno_subst_map->[$idx]->[$ph]->{$brname}=$rh_subst_map->{$brname};
+				foreach my $site(keys %{$rh_subst_map->{$brname}}){
+					$tmp_pheno_site_set[$idx]->[$ph]->{$site}++;
+				}
+			}
+		}
+	}
+	for(my $i=0;$i<$nphen;$i++){
+		for(my $j=$i+1;$j<$nphen;$j++){
+			my $idx=_phen_pair2idx($i,$j,$nphen);
+			for(my $k=0;$k<4;$k++){
+				@{$rao_pheno_site_sets->[$idx]->[$k]}=keys %{$tmp_pheno_site_set[$idx]->[$k]};
+			}
+		}
+	}
+}
 
 if($f_mtx_mode){
 	unless($npheno){
@@ -624,19 +676,38 @@ if($f_mtx_mode){
 	}else{
 		my @bg_pheno_subst_map;
 		my @bg_pheno_site_set;
-		mk_phenotype_subst_map(\%phenotypes,$npheno,\%bg_subst_map,\@bg_pheno_subst_map,\@bg_pheno_site_set);
 		my @tg_pheno_subst_map;
 		my @tg_pheno_site_set;
-		mk_phenotype_subst_map(\%phenotypes,$npheno,\%tg_subst_map,\@tg_pheno_subst_map,\@tg_pheno_site_set);
-		for(my $i=0;$i<$npheno;$i++){
-			my $ofn_pref=$dir.$basename.".".$pheno_labels[$i];
-			for(my $j=0;$j<2;$j++){
-				my @bg_branches=keys %{$bg_pheno_subst_map[$i]->[$j]};
-				my @tg_branches=keys %{$tg_pheno_subst_map[$i]->[$j]};
-				print_branch_site_mutation_matrix($ofn_pref."#$j",$f_mtx_mode,$f_intragene,
-					$bg_pheno_site_set[$i]->[$j],$tg_pheno_site_set[$i]->[$j],
-					\@bg_branches,\@tg_branches,
-					$bg_pheno_subst_map[$i]->[$j],$tg_pheno_subst_map[$i]->[$j]);
+		if($f_phenotype_pairs){
+			mk_phenotype_pairs_subst_map(\%phenotypes,$npheno,\%bg_subst_map,\@bg_pheno_subst_map,\@bg_pheno_site_set);
+			mk_phenotype_pairs_subst_map(\%phenotypes,$npheno,\%tg_subst_map,\@tg_pheno_subst_map,\@tg_pheno_site_set);
+			for(my $i=0;$i<$npheno;$i++){
+				for(my $j=$i+1;$j<$npheno;$j++){
+					my $ofn_pref=$dir.$basename.".".$pheno_labels[$i]."_".$pheno_labels[$j];
+					for(my $k=0;$k<4;$k++){
+						my $idx=_phen_pair2idx($i,$j,$npheno);
+						my @bg_branches=keys %{$bg_pheno_subst_map[$idx]->[$k]};
+						my @tg_branches=keys %{$tg_pheno_subst_map[$idx]->[$k]};
+						print_branch_site_mutation_matrix($ofn_pref."#$k",$f_mtx_mode,$f_intragene,
+							$bg_pheno_site_set[$idx]->[$k],$tg_pheno_site_set[$idx]->[$k],
+							\@bg_branches,\@tg_branches,
+							$bg_pheno_subst_map[$idx]->[$k],$tg_pheno_subst_map[$idx]->[$k]);
+					}
+				}
+			}
+		}else{
+			mk_phenotype_subst_map(\%phenotypes,$npheno,\%bg_subst_map,\@bg_pheno_subst_map,\@bg_pheno_site_set);
+			mk_phenotype_subst_map(\%phenotypes,$npheno,\%tg_subst_map,\@tg_pheno_subst_map,\@tg_pheno_site_set);
+			for(my $i=0;$i<$npheno;$i++){
+				my $ofn_pref=$dir.$basename.".".$pheno_labels[$i];
+				for(my $j=0;$j<2;$j++){
+					my @bg_branches=keys %{$bg_pheno_subst_map[$i]->[$j]};
+					my @tg_branches=keys %{$tg_pheno_subst_map[$i]->[$j]};
+					print_branch_site_mutation_matrix($ofn_pref."#$j",$f_mtx_mode,$f_intragene,
+						$bg_pheno_site_set[$i]->[$j],$tg_pheno_site_set[$i]->[$j],
+						\@bg_branches,\@tg_branches,
+						$bg_pheno_subst_map[$i]->[$j],$tg_pheno_subst_map[$i]->[$j]);
+				}
 			}
 		}
 	}

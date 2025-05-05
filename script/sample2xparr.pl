@@ -8,7 +8,7 @@
 #		Contents:
 #		XPAR="FN" - input file for EpiStat application [Kryazhimsky11]. Contains tree in the adjacent file format
 #		PairsType=("intra[gene]"|"inter[gene]")
-#		MatrixMode="1|2|3" - mode of mutation matrix  (see below): 1 - background;2 - target; 3 - both
+#		MatrixMode="1|2|3" - mode of mutation matrix  (see below): 1 - background;2 - foreground; 3 - both
 #		IgnoreTerminals="0|1" - Ignore terminal branches
 #			Default=1 - Ignore
 ###SECTION null model with alleles{
@@ -360,6 +360,8 @@ sub get_site_profile{
 	return @tmp;
 }
 
+#$nsubsets - a number of branch subsets per phenotype
+#output: $rh_map,$rh_site
 sub init_subst_distribution{
 	my ($nsubsets,$ra_mmtx_fn,$ra_branch_fn,$ra_site_fn,$rh_map,$rh_site)=@_;
 	%{$rh_site}=();
@@ -519,6 +521,7 @@ sub init_sequence{
 	return 0;
 }
 
+#it edits the %{$rh_smpl_subst_map}
 sub init_alleles{
 	my ($tree,$ra_root_seq,$rh_smpl_subst_map,$rh_site2idx,%args)=@_;
 	my $profile;
@@ -734,8 +737,8 @@ foreach my $node($tree->get_nodes){
 		my $pname=$node->get_parent->get_name;
 		my $length=$node->get_branch_length;
 		print "\t$pname\t$length\t$syn_subst_map{$name}\t";
-		my @sites1;
-		my @sites2;
+		my @sites1; #list of the branch sites for the original tree
+		my @sites2; #list of the branch sites for the fake tree
 		my @tmp;
 		my $str="";
 		if(defined $tg_subst_map{$name}){
@@ -750,12 +753,15 @@ foreach my $node($tree->get_nodes){
 				foreach my $site(@tmp){
 					push @sites1,$tg_subst_map{$name}->{$site};
 				}
-			}elsif(!defined($hr_smpl_tg_subst_map)){
+			}elsif(!defined($hr_smpl_tg_subst_map)){ 
+				#intragene mode and NO permutations in the foreground
 				foreach my $site(@tmp){
+					#take from the original tree the foreground sites which do not exist in the background (those stay at the their places)
 					push @sites1,$tg_subst_map{$name}->{$site} unless defined $bg_nsubst{$site};
 				}
 				@tmp=keys %{$hr_smpl_bg_subst_map->{$name}};
 				for(my $i=0;$i<@tmp;$i++){
+					#take from the fake tree the background sites which also exist in the foreground of the original tree (which were perturbed)
 					push @sites2,$tmp[$i] if defined $tg_nsubst{$tmp[$i]};
 				}
 				$rh_smpl_subst_map=$hr_smpl_bg_subst_map;
@@ -772,8 +778,8 @@ foreach my $node($tree->get_nodes){
 			}
 		}
 		print "$str\t";
-		@sites1=();
-		@sites2=();
+		@sites1=(); #list of the branch sites for the original tree
+		@sites2=(); #list of the branch sites for the fake tree
 		@tmp=();
 		$str="";
 		if(defined $bg_subst_map{$name}){
@@ -789,11 +795,14 @@ foreach my $node($tree->get_nodes){
 					push @sites1,$bg_subst_map{$name}->{$site};
 				}
 			}elsif(!defined $hr_smpl_bg_subst_map){
+				#intragene mode and NO permutations in the background
 				for(my $i=0;$i<@tmp;$i++){
+					#take from the original tree the background sites which do not exist in the foreground (those stay at the their places)
 					push @sites1,$tmp[$i] unless defined $tg_nsubst{$tmp[$i]};
 				}
 				@tmp=keys %{$hr_smpl_tg_subst_map->{$name}};
 				for(my $i=0;$i<@tmp;$i++){
+					#take from the fake tree the foreround sites which also exist in the background of the original tree (which were perturbed)
 					push @sites2,$tmp[$i] if(defined $bg_nsubst{$tmp[$i]});
 				}
 				$rh_smpl_subst_map=$hr_smpl_tg_subst_map;

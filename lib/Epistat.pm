@@ -1,7 +1,7 @@
 package Epistat;
 #Epistat - the set of utilities for searching of associations on a phylogenetic tree
 #2022 - Alexey D. Neverov neva_2000 (at) mail.ru
-our $VERSION=0.10.1;
+our $VERSION=0.10.2;
 =head1 NAME
 
 epistat - the set of utilities for the searching for associations on a phylogenetic tree

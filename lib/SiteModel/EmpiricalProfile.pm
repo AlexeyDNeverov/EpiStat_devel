@@ -42,7 +42,7 @@ foreach my $site(keys %{$rh_site2idx}){
 				$self->{MUT_PROFILE}->[$site_idx]->{$base_idxs[0]}->{$base_idxs[1]}++;
 				$self->{MUT_NUMBER}->[$site_idx]++;
 			}else{
-				die "\nSome alleles were undefined. Edit your input XPARR file!";
+				die "\nSome alleles were undefined: Node=$nd_name\tsite=$site \n\tEdit your input XPARR file!";
 			}
 		}
 	}

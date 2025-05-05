@@ -4,13 +4,13 @@
       "Alexey D. Neverov <neva_2000(at)mail.ru>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Module::Build version 0.4231",
+   "generated_by" : "Module::Build version 0.4234",
    "license" : [
       "gpl_3"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
-      "version" : "2"
+      "version" : 2
    },
    "name" : "Epistat",
    "prereqs" : {
@@ -31,6 +31,7 @@
          "requires" : {
             "Bio::Phylo" : "0",
             "Color::Rgb" : "0",
+            "Data::Float" : "0",
             "File::Basename" : "0",
             "File::Path" : "0",
             "Getopt::Std" : "0",
@@ -120,7 +121,7 @@
       },
       "Epistat" : {
          "file" : "lib/Epistat.pm",
-         "version" : "v0.10.1"
+         "version" : "v0.10.2"
       },
       "EpistatAnalysis::PhyloDistances" : {
          "file" : "lib/EpistatAnalysis/PhyloDistances.pm",
@@ -194,6 +195,6 @@
       }
    },
    "release_status" : "stable",
-   "version" : "v0.10.1",
-   "x_serialization_backend" : "JSON::PP version 2.27400_02"
+   "version" : "v0.10.2",
+   "x_serialization_backend" : "JSON::PP version 4.07"
 }

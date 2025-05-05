@@ -204,4 +204,4 @@ QUICK_START
         $EPISTAT_HOME/mk_summary.pl -u -a 9drugs.pairs2.upper.FDR5.mk_summary.cfg 9drugs.cor2pcor.n0.l90.R.out>9drugs.cor2pcor.n0.l90.FDR5.tab
             $EPISTAT_HOME/mk_summary.pl -u -a 9drugs.pairs2.lower.FDR5.mk_summary.cfg -s 1 9drugs.all.mtx>9drugs.z-score.FDR5.tab
 
-    1;
+

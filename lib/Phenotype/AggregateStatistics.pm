@@ -10,6 +10,7 @@ $VERSION = 1.00; # Or higher
 @EXPORT_OK = qw();
 use File::Path qw(make_path rmtree);
 use SitePairMatrix;
+use Data::Float;
 use Time::Progress;
 #sort_order: 0- ascending; 1- descending
 sub get_best_stat{
@@ -97,11 +98,14 @@ sub aggregateByBest{
 	my @pairs2pheno;
 	for(my $i=0;$i<$npairs;$i++){
 		my ($bgs,$fgs)=$sp_matrix->line2site_pair($i);
-		my $p2p_val=$rh_bg_sites2pheno->{$bgs}->[0]*$rh_fg_sites2pheno->{$fgs}->[0];
+		my $p2p_val=-(Data::Float::max_finite-1.0); #-inf
+		if(defined($rh_bg_sites2pheno->{$bgs}->[0])&&defined($rh_fg_sites2pheno->{$fgs}->[0])){
+			$p2p_val=$rh_bg_sites2pheno->{$bgs}->[0]+$rh_fg_sites2pheno->{$fgs}->[0];
+		}
 		my @p2p_idx;
 		push @p2p_idx,0;
 		for(my $j=1;$j<$npheno;$j++){
-			my $p2p_val2=$rh_bg_sites2pheno->{$bgs}->[$j]*$rh_fg_sites2pheno->{$fgs}->[$j];
+			my $p2p_val2=$rh_bg_sites2pheno->{$bgs}->[$j]+$rh_fg_sites2pheno->{$fgs}->[$j];
 			if(get_best_stat($site2pheno_order,$p2p_val,$p2p_val2)==$p2p_val2){
 				if($p2p_val==$p2p_val2){
 					push @p2p_idx,$j;
@@ -160,6 +164,34 @@ sub aggregateByBest{
 	}
 }
 
+#This function makes normalization of a vector of logarithms of values so that the vector exponentiation would be summed up to the one
+#undefined values are interpreted as '-inf' values
+sub log_of_simplex_closure{
+	my $ra_lvec=shift;
+	my @ln_vec=@{$ra_lvec};
+	my $i=0;
+	for(;$i<@ln_vec;$i++){
+		last if defined $ln_vec[$i]; #undef means -inf
+	}
+	return (undef) x @ln_vec unless $i<@ln_vec;
+	my $mval=$ln_vec[$i++];
+	for(;$i<@ln_vec;$i++){
+		next unless defined $ln_vec[$i];
+		$mval=$ln_vec[$i] if $mval<$ln_vec[$i];
+	}
+	my $s=0;
+	for(my $i=0;$i<@ln_vec;$i++){
+		next unless defined $ln_vec[$i];
+		$s+=exp($ln_vec[$i]-$mval);
+	}
+	my $ldenom=$mval+log($s);
+	for(my $i=0;$i<@ln_vec;$i++){
+		next unless defined $ln_vec[$i];
+		$ln_vec[$i]-=$ldenom;
+	}
+	return @ln_vec;
+}
+
 sub aggregateByMean{
 	my ($pairs_fn,$f_intragene,$indir,$ra_pheno_samles_dirs,$ra_samples_storage,$file_ext,
 			$rh_bg_sites2pheno,$rh_fg_sites2pheno,$site2pheno_order,$outdir,$ntries)=@_;
@@ -190,22 +222,22 @@ sub aggregateByMean{
 		push @pairs2pheno,[];
 		my $norm=0;
 		for(my $j=0;$j<$npheno;$j++){
-			my $val=$rh_bg_sites2pheno->{$bgs}->[$j]*$rh_fg_sites2pheno->{$fgs}->[$j];
-			$norm+=$val;
+			my $val;
+			if(defined($rh_bg_sites2pheno->{$bgs}->[$j])&&defined($rh_fg_sites2pheno->{$fgs}->[$j])){
+				$val=$rh_bg_sites2pheno->{$bgs}->[$j]+$rh_fg_sites2pheno->{$fgs}->[$j];
+			}
 			push @{$pairs2pheno[-1]},$val;
 		}
-		my $n=0;
-		for(my $j=0;$j<$npheno;$j++){
-			$pairs2pheno[-1]->[$j]/=$norm if $norm>0;
-			if($site2pheno_order==0){
-				$pairs2pheno[-1]->[$j]=1-$pairs2pheno[-1]->[$j];
-				$n+=$pairs2pheno[-1]->[$j];
-			}
-		}
+		@{$pairs2pheno[-1]}=log_of_simplex_closure($pairs2pheno[-1]);
 		if($site2pheno_order==0){
 			for(my $j=0;$j<$npheno;$j++){
-				$pairs2pheno[-1]->[$j]/=$n;
+				if(defined $pairs2pheno[-1]->[$j]){
+					$pairs2pheno[-1]->[$j]=log(1-exp($pairs2pheno[-1]->[$j]));
+				}else{
+					$pairs2pheno[-1]->[$j]=0;
+				}
 			}
+			@{$pairs2pheno[-1]}=log_of_simplex_closure($pairs2pheno[-1]);
 		}
 	}
 	for(my $j=0;$j<@{$ra_samples_storage};$j++){
@@ -234,7 +266,9 @@ sub aggregateByMean{
 							my $pair_idx=$line[0];
 							$aggregate{$pair_idx}=[] unless defined $aggregate{$pair_idx};
 							for(my $j=1;$j<@line;$j++){
-								$aggregate{$pair_idx}->[$j-1]+=$line[$j]*$pairs2pheno[$pair_idx]->[$i];
+								if(defined $pairs2pheno[$pair_idx]->[$i]){
+									$aggregate{$pair_idx}->[$j-1]+=$line[$j]*exp($pairs2pheno[$pair_idx]->[$i]);
+								}
 								if($j>1){
 									$aggregate{$pair_idx}->[$j-1]=sprintf("%.2f",$aggregate{$pair_idx}->[$j-1]);
 								}else{
@@ -260,6 +294,7 @@ sub aggregateByMean{
 	}
 }
 
+#$site2pheno_order - best to worst site to phenotype association statistics sorting order: 0 - for p-values; 1 -for z-scores
 sub aggregateByMixture{
 	my ($pairs_fn,$f_intragene,$indir,$ra_pheno_samles_dirs,$ra_samples_storage,$file_ext,
 			$rh_bg_sites2pheno,$rh_fg_sites2pheno,$site2pheno_order,$outdir,$ntries)=@_;
@@ -269,7 +304,6 @@ sub aggregateByMixture{
 	$indir.="/";
 	$outdir=~s/\s+$//;
 	$outdir=~s/\/$//;
-	my $alpha=0.5;
 	my $sp_matrix=SitePairMatrix->new($pairs_fn,$f_intragene);
 	my @bg_sites;
 	my @fg_sites;
@@ -283,35 +317,35 @@ sub aggregateByMixture{
 	my $npairs=$sp_matrix->{NLINES};
 	my $npheno=@{$ra_pheno_samles_dirs};
 	my $nsamples=$ra_samples_storage->[-1]->[1]-$ra_samples_storage->[0]->[0]+1;
-	my $p0=-log($alpha)/$nsamples;
 	my $progress_bar = Time::Progress->new(min => 1, max => $nsamples);
 	die "\nNot allowed value for the 'site2pheno_order': $site2pheno_order!" unless ($site2pheno_order==0)||($site2pheno_order==1);
 	my @pairs2phen_probs;
 	for(my $i=0;$i<$npairs;$i++){
 		my ($bgs,$fgs)=$sp_matrix->line2site_pair($i);
 		my @phen_probs;
-		my $norm=0;
 		for(my $j=0;$j<$npheno;$j++){
-			my $val=$rh_bg_sites2pheno->{$bgs}->[$j]*$rh_fg_sites2pheno->{$fgs}->[$j];
-			$norm+=$val;
+			my $val;
+			if(defined($rh_bg_sites2pheno->{$bgs}->[$j])&&defined($rh_fg_sites2pheno->{$fgs}->[$j])){
+				$val=$rh_bg_sites2pheno->{$bgs}->[$j]+$rh_fg_sites2pheno->{$fgs}->[$j];
+			}
 			push @phen_probs,$val;
 		}
-		my $n=0;
-		for(my $j=0;$j<$npheno;$j++){
-			$phen_probs[$j]/=$norm if $norm>0;
-			if($site2pheno_order==0){
-				$phen_probs[$j]=$p0 unless $phen_probs[$j]>0;
-				$phen_probs[$j]=1/$phen_probs[$j];
-				$n+=$phen_probs[$j];
-			}
-		}
+		@phen_probs=log_of_simplex_closure(\@phen_probs);
 		if($site2pheno_order==0){
 			for(my $j=0;$j<$npheno;$j++){
-				$phen_probs[$j]/=$n;
+				$phen_probs[$j]=-$phen_probs[$j];
 			}
-		}
-		for(my $j=1;$j<$npheno;$j++){
-			$phen_probs[$j]+=$phen_probs[$j-1];
+			@phen_probs=log_of_simplex_closure(\@phen_probs);
+			if($site2pheno_order==0){
+				for(my $j=0;$j<$npheno;$j++){
+					if(defined $phen_probs[$j]){
+						$phen_probs[$j]=exp($phen_probs[$j]);
+					}else{
+						$phen_probs[$j]=0;
+					}
+					$phen_probs[$j]+=$phen_probs[$j-1] if $j;
+				}
+			}
 		}
 		push @pairs2phen_probs,[@phen_probs];
 	}

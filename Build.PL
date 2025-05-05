@@ -100,7 +100,8 @@ my $builder = $class->new(
         'File::Basename'      => 0,
         'File::Path'          => 0,
 		'Getopt::Std'          => 0,
-		'Statistics::Multtest' => 0
+		'Statistics::Multtest' => 0,
+		'Data::Float' => 0
     },
 	stat_files => \%stat_files,
 	graph_files => \%graph_files,
