@@ -63,6 +63,31 @@ sub new{
 	return $self;
 }
 
+sub _account_for_recent_tg_mutations{
+	my $self=shift;
+	my ($bg_site_idx,$tg_site_idx,$tg_site,$hr_tg_subst_map,$rh_tg_mutation_nodes,$rh_bg_allele2tg_mutation,$rh_mcounts_all,$rh_acounts_all)=@_;
+	my $tg_site_prof=$self->{FGR_PROFILE};
+	my $bg_site_prof=$self->{BGR_PROFILE};
+	my $alpha_size=$tg_site_prof->get_alphabet_size();
+	foreach my $tg_node_name(@{$tg_site_prof->get_root_recent_mutations($tg_site_idx)}){
+		unless(defined $rh_tg_mutation_nodes->{$tg_node_name}){
+			my $bg_allele_idx=$bg_site_prof->get_root_seq_ref->[$bg_site_idx];
+			die "\nThere isn't a mutation in the foreground site $tg_site on the branch $tg_node_name!" unless defined($hr_tg_subst_map->{$tg_node_name}->{$tg_site});
+			my @base_idxs2=@{$hr_tg_subst_map->{$tg_node_name}->{$tg_site}->bases};
+			die "\n\nAlleleConsequtivePairs::calc_statistics() Error: undefined alleles in the site $tg_site on the branch $tg_node_name" unless @base_idxs2==2;
+			my $tg_anc=$base_idxs2[0];
+			my $alleles=$base_idxs2[0]*$alpha_size+$base_idxs2[1];
+			$rh_bg_allele2tg_mutation->{$bg_allele_idx}->{$alleles}++;
+			unless(defined $rh_mcounts_all->{$alleles}){
+				$rh_mcounts_all->{$alleles}=$tg_site_prof->get_mutation_count($tg_anc,$base_idxs2[1],$tg_site_idx);
+			}
+			unless(defined $rh_acounts_all->{$tg_anc}){
+				$rh_acounts_all->{$tg_anc}=$tg_site_prof->get_ancestral_state_count($tg_anc,$tg_site_idx);
+			}
+		}
+	}
+}
+
 sub calc_statistics{
 	my $self=shift;
 	my ($tau,$stat_type,$hr_bg_subst_map,$hr_tg_subst_map)=@_;
@@ -99,21 +124,31 @@ sub calc_statistics{
 			}
 			my $bg_site=$site_pair_info->bg_site;
 			my $tg_site=$site_pair_info->tg_site;
+			my ($bg_site_idx,$tg_site_idx);
+			if($I==0){
+				($bg_site_idx,$tg_site_idx)=($s1_idx,$s2_idx);
+			}else{
+				#Note that site indices correspond to the first ordered pair (first site cordinate less than the second),
+				# thus if $I==1 the foreground site has the $s1_idx site index
+				($bg_site_idx,$tg_site_idx)=($s2_idx,$s1_idx);
+			}
 			my %mcounts_all; #counts of mutations in the target site
 			my %acounts_all; #counts of ancestral states of mutations in the target site
 			my %bg_allele2tg_mutation; #counts of mutations in the target site on the specific background
 			my %bg_allele2tg_acounts; #counts ancestral states of mutations in the target site on the specific background
 			my %bg_node2esi;
 			my %esi;
+			my %tg_mutation_nodes;
 			foreach my $si(@{$site_pair_info->subst_info}){
 				my ($bg_node,$tg_node)=($si->bg_branch,$si->tg_branch);
 				my $t=calc_subst_distance($bg_node,$tg_node);
 				my $count=$si->count();
 				my $bg_node_name=$bg_node->get_name;
 				my $tg_node_name=$tg_node->get_name;
-				my @base_idxs1=@{$hr_bg_subst_map->{$bg_node->get_name}->{$bg_site}->bases};
+				$tg_mutation_nodes{$tg_node_name}=1;
+				my @base_idxs1=@{$hr_bg_subst_map->{$bg_node_name}->{$bg_site}->bases};
 				die "\n\nAlleleConsequtivePairs::calc_statistics() Error: undefined alleles in the site $bg_site on the branch $bg_node_name" unless @base_idxs1==2;
-				my @base_idxs2=@{$hr_tg_subst_map->{$tg_node->get_name}->{$tg_site}->bases};
+				my @base_idxs2=@{$hr_tg_subst_map->{$tg_node_name}->{$tg_site}->bases};
 				die "\n\nAlleleConsequtivePairs::calc_statistics() Error: undefined alleles in the site $tg_site on the branch $tg_node_name" unless @base_idxs2==2;
 				my $w1=$hr_bg_subst_map->{$bg_node_name}->{$bg_site}->weight;
 				my $w2=$hr_tg_subst_map->{$tg_node_name}->{$tg_site}->weight;
@@ -130,18 +165,10 @@ sub calc_statistics{
 				$bg_allele2tg_mutation{$bg_drv}->{$alleles}++;
 				$bg_allele2tg_acounts{$bg_drv}->{$tg_anc}++;
 				unless(defined $acounts_all{$tg_anc}){
-					if($I==0){
-						$acounts_all{$tg_anc}=$tg_site_prof->get_ancestral_state_count($tg_anc,$s2_idx);
-					}else{
-						$acounts_all{$tg_anc}=$tg_site_prof->get_ancestral_state_count($tg_anc,$s1_idx);
-					}
+					$acounts_all{$tg_anc}=$tg_site_prof->get_ancestral_state_count($tg_anc,$tg_site_idx);
 				}
 				unless(defined $mcounts_all{$alleles}){
-					if($I==0){
-						$mcounts_all{$alleles}=$tg_site_prof->get_mutation_count($tg_anc,$base_idxs2[1],$s2_idx);
-					}else{
-						$mcounts_all{$alleles}=$tg_site_prof->get_mutation_count($tg_anc,$base_idxs2[1],$s1_idx);
-					}
+					$mcounts_all{$alleles}=$tg_site_prof->get_mutation_count($tg_anc,$base_idxs2[1],$tg_site_idx);
 				}
 				$esi{$alleles}={} unless defined $esi{$alleles};
 				if($f_independent_pairs){
@@ -162,21 +189,28 @@ sub calc_statistics{
 					}
 				}
 			}
+			$self->_account_for_recent_tg_mutations($bg_site_idx,$tg_site_idx,$tg_site,$hr_tg_subst_map,\%tg_mutation_nodes,\%bg_allele2tg_mutation,\%mcounts_all,\%acounts_all);
 			foreach my $bg_allele(keys %bg_allele2tg_mutation){
 				foreach my $alleles(keys %{$bg_allele2tg_mutation{$bg_allele}}){
 					if($f_A1){
-						#P(s1,A1|b2,s2,B2)
+						#P((s1,A1)|(b2,s2,B2))
 						my $p=$bg_allele2tg_mutation{$bg_allele}->{$alleles}/$mcounts_all{$alleles};
+#DEBUG
+die "\nMutation count error. Check code of _account_for_recent_tg_mutations()!" unless $p>=0&&$p<=1.0;
+##
 						$epistat+=$p*$esi{$alleles}->{$bg_allele};
 					}else{
 						my $anc_idx=int($alleles/$alpha_size);
-						#P(B2|s1,A1,b2,s2)
+						#P(B2|(s1,A1),(b2,s2))
 						my $p_bg=$bg_allele2tg_mutation{$bg_allele}->{$alleles}/$bg_allele2tg_acounts{$bg_allele}->{$anc_idx};
 						my $p_other=0;
 						if($acounts_all{$anc_idx}-$bg_allele2tg_acounts{$bg_allele}->{$anc_idx}){
-							#P(!B2|!(s1,A1),b2,s2)
+							#P(!B2|!(s1,A1),(b2,s2))
 							$p_other=1-($mcounts_all{$alleles}-$bg_allele2tg_mutation{$bg_allele}->{$alleles})/($acounts_all{$anc_idx}-$bg_allele2tg_acounts{$bg_allele}->{$anc_idx});
 						}
+#DEBUG
+die "\nMutation count error. Check code of _account_for_recent_tg_mutations()!" unless $p_bg>=0&&$p_bg<=1.0&&$p_other>=0&&$p_other<=1.0;
+##
 						$epistat+=($p_bg+$p_other)*$esi{$alleles}->{$bg_allele}/2;
 					}
 				}

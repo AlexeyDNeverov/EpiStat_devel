@@ -15,6 +15,7 @@ sub _init{
 	$self->{DERIVED_STATE_COUNTS}=[];
 	$self->{ANCEST_STATE_COUNTS}=[];
 	$self->{ROOT_SEQ}=[];
+	$self->{ROOT_RECENT_MUTATIONS}={};
 	my $max_site_idx=0;
 	my @states;
 ##DEBUG
@@ -101,7 +102,10 @@ foreach my $site(keys %{$rh_site2idx}){
 	foreach my $site(keys %{$recent_mutations{$rname}}){
 		my %alleles;
 		my $anc_idx;
+		my $site_idx=$rh_site2idx->{$site};
+		$self->{ROOT_RECENT_MUTATIONS}->{$site_idx}=[];
 		foreach my $nd_name(@{$recent_mutations{$rname}->{$site}}){
+			push @{$self->{ROOT_RECENT_MUTATIONS}->{$site_idx}},$nd_name;
 			my $si=$rh_subst_map->{$nd_name}->{$site};
 			$anc_idx=$si->bases(0);
 			die "\nIn the site $site the mutation occurred on the branch $nd_name has undefined uncestral state!" unless defined $anc_idx;
@@ -119,7 +123,6 @@ foreach my $site(keys %{$rh_site2idx}){
 				#print STDERR "\n\t".($aidx+1)."\t".$alleles{$aidx};
 			}
 		}
-		my $site_idx=$rh_site2idx->{$site};
 		$self->{ROOT_SEQ}->[$site_idx]=$anc_idx;
 	}
 	#calculate alignment profile
@@ -197,6 +200,12 @@ sub get_root_seq{
 sub get_root_seq_ref{
 	my $self=shift;
 	return $self->{ROOT_SEQ};
+}
+
+sub get_root_recent_mutations{
+	my $self=shift;
+	my $site_idx=shift;
+	return $self->{ROOT_RECENT_MUTATIONS}->{$site_idx}
 }
 
 #returns empirical probability of a particular state in the alignment
