@@ -71,7 +71,7 @@ provides:
     version: '1'
   Epistat:
     file: lib/Epistat.pm
-    version: v0.10.2
+    version: v0.10.3
   EpistatAnalysis::PhyloDistances:
     file: lib/EpistatAnalysis/PhyloDistances.pm
     version: '1'
@@ -132,5 +132,5 @@ requires:
   Math::Gradient: '0'
   Statistics::Multtest: '0'
   Time::Progress: '0'
-version: v0.10.2
+version: v0.10.3
 x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

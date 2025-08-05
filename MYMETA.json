@@ -121,7 +121,7 @@
       },
       "Epistat" : {
          "file" : "lib/Epistat.pm",
-         "version" : "v0.10.2"
+         "version" : "v0.10.3"
       },
       "EpistatAnalysis::PhyloDistances" : {
          "file" : "lib/EpistatAnalysis/PhyloDistances.pm",
@@ -195,6 +195,6 @@
       }
    },
    "release_status" : "stable",
-   "version" : "v0.10.2",
+   "version" : "v0.10.3",
    "x_serialization_backend" : "JSON::PP version 4.07"
 }
