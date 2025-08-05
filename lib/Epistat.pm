@@ -1,6 +1,6 @@
 package Epistat;
 #Epistat - the set of utilities for searching of associations on a phylogenetic tree
-#2022 - Alexey D. Neverov neva_2000 (at) mail.ru
+#2022-2025 - Alexey D. Neverov neva_2000 (at) mail.ru
 our $VERSION=0.10.2;
 =head1 NAME
 
@@ -185,7 +185,7 @@ These instructions are for linux.
  #
  #example 3: The search for concordant evolution of sites with control for their associations with phenotypes for 9 anti-tuberculosis drugs
  #  For multiple phenotype analysis the additional file with p-values of associations of sites and phenotypes is required - *.site2pheno
- #  Note: this analysis in longer than the analysis without control of phenotypes by the factor of <the_number_of_phenotypes> 
+ #  Note: this analysis is longer than the analysis without control of phenotypes by the factor of <the_number_of_phenotypes> 
     cd /where/to/installed/epistat/epistat_examples/intragene/alleles/mtb/phen
     $EPISTAT_HOME/estimate_tau.pl -b 0.95 9drugs.xparr > 9drugs.tau
     $EPISTAT_HOME/run_epistat.pl -x 9drugs.xparr -m 2 -p 10000 epistat.phen.prm run_epistat.prm

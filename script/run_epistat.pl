@@ -359,14 +359,18 @@ die "\nError: The OutAvgEpiStats parameter has no defaul value!" unless defined 
 die "\nError: The OutVarEpiStat parameter has no defaul value!" unless defined $var_fn;
 die "\nError: The OutFDR parameter has no defaul value!" if $nfdr_samples>0&&!defined($fdr_fn);
 die "\nError: The OutSiteStats parameter has no defaul value!" unless defined $site_stat_fn;
-if(defined($npheno)&&($npheno>1)){
-	die "\nThe NullMutationModel=\"allele_rates\" is not supported yet for input data with phenotypes!" if $f_mutation_model==1;
-	die "\nUndefined aggregation method for phenotype-constrained fake samples!" unless defined $f_pheno_aggr_method;
-	die "\nNo files with site to phenotype associations has been specified!" unless defined($bg_sites2pheno_fn)||defined($fg_sites2pheno_fn);
-	die "\nThe best to worst sorting order for site to phenotype associations is required!" unless defined $site2phen_order;
-	unless($f_intragene){
-		die "\nThe file with association statistics of sites in background to phenotype hasn't been specified!" unless defined($bg_sites2pheno_fn);
-		die "\nThe file with association statistics of sites in foreground to phenotype hasn't been specified!" unless defined($fg_sites2pheno_fn);
+if(defined $npheno){
+	if($npheno>1){
+		die "\nThe NullMutationModel=\"allele_rates\" is not supported yet for input data with phenotypes!" if $f_mutation_model==1;
+		die "\nUndefined aggregation method for phenotype-constrained fake samples!" unless defined $f_pheno_aggr_method;
+		die "\nNo files with site to phenotype associations has been specified!" unless defined($bg_sites2pheno_fn)||defined($fg_sites2pheno_fn);
+		die "\nThe best to worst sorting order for site to phenotype associations is required!" unless defined $site2phen_order;
+		unless($f_intragene){
+			die "\nThe file with association statistics of sites in background to phenotype hasn't been specified!" unless defined($bg_sites2pheno_fn);
+			die "\nThe file with association statistics of sites in foreground to phenotype hasn't been specified!" unless defined($fg_sites2pheno_fn);
+		}
+	}else{
+		die "\nError: at lest two phenotypes required to use the paired-phenotype model!" if $f_phenotype_pairs;
 	}
 }
 if($f_mutation_model==0){
